@@ -9,9 +9,14 @@ export default async function handler(req, res) {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${apiKey}`,
+                "HTTP-Referer": "https://zorki-tarot.vercel.app", // Для OpenRouter
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ model, messages })
+            body: JSON.stringify({ 
+                model, 
+                messages,
+                temperature: 0.1 // Минимальный разброс для точности зрения
+            })
         });
         const data = await response.json();
         res.status(200).json(data);
