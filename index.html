@@ -2,42 +2,144 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aura: Zorki Engine (Rider)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aura: Vertical Mode</title>
     <style>
-        :root { --bg: #0a0a0b; --panel: #141417; --text: #d1d1d1; --margo: #c394f0; --messire: #ff6b6b; }
-        body { font-family: sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
-        .main { display: flex; flex: 1; }
-        #video-side { flex: 1.2; background: #000; display: flex; align-items: center; justify-content: center; border-right: 1px solid #2d2d33; }
-        video { width: 100%; height: 100%; object-fit: cover; }
-        #chat-side { flex: 0.8; display: flex; flex-direction: column; background: var(--panel); }
-        #messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-        .msg { padding: 12px; border-radius: 10px; max-width: 90%; line-height: 1.5; font-size: 0.9rem; }
-        .margo { border-left: 4px solid var(--margo); background: rgba(195, 148, 240, 0.05); }
-        .messire { border-left: 4px solid var(--messire); background: rgba(255, 107, 107, 0.05); }
+        :root {
+            --bg: #050505;
+            --panel: #121214;
+            --text: #d1d1d1;
+            --accent: #4a4ae2;
+            --margo: #c394f0;
+            --messire: #ff6b6b;
+        }
+
+        * { box-sizing: border-box; }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden; /* Запрещаем общий скролл страницы */
+        }
+
+        .app-wrapper {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* Верхняя половина - Камера */
+        #video-section {
+            height: 50vh;
+            width: 100%;
+            background: #000;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 2px solid #2d2d33;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Видео заполняет верхнюю часть без полос */
+        }
+
+        /* Нижняя половина - Приборная панель */
+        #dashboard {
+            height: 50vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            background: var(--panel);
+        }
+
+        #chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        .msg {
+            padding: 10px 14px;
+            border-radius: 12px;
+            max-width: 85%;
+            line-height: 1.4;
+        }
         .user { background: #2a2a2e; align-self: flex-end; }
-        .controls { padding: 20px; border-top: 1px solid #2d2d33; display: flex; flex-direction: column; gap: 10px; }
-        textarea { background: #1c1c21; border: 1px solid #2d2d33; color: #fff; padding: 10px; border-radius: 8px; height: 50px; }
-        button { cursor: pointer; background: #4a4ae2; border: none; color: #fff; padding: 12px; border-radius: 8px; font-weight: bold; }
+        .margo { border-left: 3px solid var(--margo); background: rgba(195, 148, 240, 0.05); align-self: flex-start; }
+        .messire { border-left: 3px solid var(--messire); background: rgba(255, 107, 107, 0.05); align-self: flex-start; }
+
+        .controls {
+            padding: 15px;
+            background: #1a1a1d;
+            border-top: 1px solid #2d2d33;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 50px;
+            background: #000;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            resize: none;
+            font-size: 14px;
+        }
+
+        .btn-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 8px;
+        }
+
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            color: #fff;
+            cursor: pointer;
+        }
+        .btn-main { background: var(--accent); }
+        .btn-sec { background: #333; }
+        
+        /* Скрытие для чистоты */
+        canvas { display: none; }
     </style>
 </head>
 <body>
 
-<div class="main">
-    <div id="video-side">
+<div class="app-wrapper">
+    <div id="video-section">
         <video id="webcam" autoplay playsinline></video>
-        <canvas id="snapshot" style="display:none;"></canvas>
+        <canvas id="snapshot"></canvas>
     </div>
 
-    <div id="chat-side">
-        <div id="messages">
-            <div class="msg margo">Я готова к работе, Марат. Жду контекст и фото расклада.</div>
+    <div id="dashboard">
+        <div id="chat-area">
+            <div class="msg margo">Система готова. Направь камеру на расклад и задай вопрос.</div>
         </div>
         
         <div class="controls">
-            <textarea id="context" placeholder="О чем спросим карты?"></textarea>
-            <button onclick="runAnalysis()">АНАЛИЗ</button>
-            <button style="background:#333; margin-top:5px;" onclick="speak()">Озвучить</button>
+            <textarea id="context" placeholder="В чем твой психологический запрос?"></textarea>
+            <div class="btn-row">
+                <button class="btn-main" onclick="runAnalysis()">АНАЛИЗ</button>
+                <button class="btn-sec" onclick="speak()">Голос</button>
+            </div>
         </div>
     </div>
 </div>
@@ -45,17 +147,23 @@
 <script>
     const video = document.getElementById('webcam');
     const canvas = document.getElementById('snapshot');
+    const chatArea = document.getElementById('chat-area');
 
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-        .then(s => video.srcObject = s);
+    // Настройка камеры для мобилок (задняя камера)
+    navigator.mediaDevices.getUserMedia({ 
+        video: { 
+            facingMode: 'environment',
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+        } 
+    }).then(stream => { video.srcObject = stream; });
 
     function addMsg(role, text) {
         const d = document.createElement('div');
         d.className = `msg ${role}`;
         d.innerText = text;
-        const m = document.getElementById('messages');
-        m.appendChild(d);
-        m.scrollTop = m.scrollHeight;
+        chatArea.appendChild(d);
+        chatArea.scrollTop = chatArea.scrollHeight;
     }
 
     async function callApi(model, messages) {
@@ -69,25 +177,25 @@
 
     async function runAnalysis() {
         const ctx = document.getElementById('context').value;
-        addMsg('user', "Сканирую...");
+        addMsg('user', "Сканирую карты...");
 
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         canvas.getContext('2d').drawImage(video, 0, 0);
-        const img = canvas.toDataURL('image/jpeg', 0.7);
+        const img = canvas.toDataURL('image/jpeg', 0.6);
 
         try {
-            // Зрение (Gemini Flash)
+            // Глаза: Gemini Flash
             const vRes = await callApi("google/gemini-2.0-flash-001", [
                 { role: "user", content: [
-                    { type: "text", text: "Ты 'Зоркий'. Определи карты Райдера-Уэйта, их позиции и тип расклада. Только факты." },
+                    { type: "text", text: "Определи карты Таро Райдера-Уэйта на фото. Напиши кратко список и название расклада." },
                     { type: "image_url", image_url: { url: img } }
                 ]}
             ]);
             const cards = vRes.choices[0].message.content;
             addMsg('user', "Вижу: " + cards);
 
-            // Психолог и Эксперт
+            // Трактовки
             const mPrompt = `Ты Марго, психолог. Трактуй расклад ${cards} для вопроса: ${ctx}`;
             const msgPrompt = `Ты Мессир, стратег. Трактуй расклад ${cards} для вопроса: ${ctx}`;
 
@@ -99,11 +207,12 @@
                     .then(r => addMsg('messire', r.choices[0].message.content));
             }, 1000);
 
-        } catch (e) { addMsg('user', "Ошибка: " + e.message); }
+        } catch (e) { addMsg('user', "Ошибка системы: " + e.message); }
     }
 
     function speak() {
         const msgs = document.querySelectorAll('.margo, .messire');
+        if (msgs.length === 0) return;
         const text = msgs[msgs.length-1].innerText;
         const ut = new SpeechSynthesisUtterance(text);
         ut.lang = 'ru-RU';
