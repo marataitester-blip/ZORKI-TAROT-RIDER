@@ -2,34 +2,36 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes">
-    <title>AURA-12 | HD Sensor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0">
+    <title>AURA-12 | Journal</title>
     <style>
         :root { --perla: #fcfcf5; --copper: #b87333; --text: #2c1a1a; }
         body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: var(--perla); color: var(--text); font-family: "Georgia", serif; overflow: hidden; }
-        .screen { display: none; flex-direction: column; height: 100vh; width: 100vw; padding: 20px; }
+        .screen { display: none; flex-direction: column; height: 100vh; width: 100vw; padding: 20px; box-sizing: border-box; }
         .active { display: flex; }
-        h1 { color: var(--copper); text-align: center; font-size: 2.2rem; letter-spacing: 5px; margin: 5% 0 10px 0; }
-        .round-btn { width: 110px; height: 110px; border-radius: 50%; background: var(--copper); color: white; border: none; font-weight: bold; font-size: 1rem; cursor: pointer; margin: 10px auto; box-shadow: 0 4px 15px rgba(184,115,51,0.4); }
-        .compare-btn { padding: 12px; border: 2px solid var(--copper); border-radius: 8px; background: white; color: var(--copper); font-weight: bold; font-size: 0.8rem; flex: 1; cursor: pointer; text-transform: uppercase; }
-        .compare-btn.active-model { background: var(--copper); color: white; }
-        textarea { width: 100%; height: 80px; background: rgba(255,255,255,0.8); border: 1px solid var(--copper); border-radius: 12px; padding: 12px; font-size: 1rem; outline: none; margin-bottom: 10px; }
+        h1 { color: var(--copper); text-align: center; font-size: 2rem; letter-spacing: 4px; margin: 5% 0; }
+        .round-btn { width: 100px; height: 100px; border-radius: 50%; background: var(--copper); color: white; border: none; font-weight: bold; cursor: pointer; margin: 10px auto; box-shadow: 0 4px 15px rgba(184,115,51,0.3); }
+        .action-btn { background: var(--copper); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; margin: 5px 0; width: 100%; }
+        textarea { width: 100%; height: 80px; background: #fff; border: 1px solid var(--copper); border-radius: 12px; padding: 12px; font-size: 1rem; box-sizing: border-box; }
         #video-full { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
         .cam-ui { position: absolute; bottom: 30px; left: 0; width: 100%; z-index: 2; display: flex; justify-content: center; }
-        .photo-box { height: 30vh; width: 100%; overflow: hidden; border: 2px solid var(--copper); border-radius: 10px; position: relative; background: #000; }
-        #res-img { width: 100%; height: 100%; object-fit: contain; cursor: zoom-in; transition: 0.3s; }
-        #res-img:active { transform: scale(2.5); z-index: 100; position: absolute; }
-        .btn-row { display: flex; gap: 8px; margin: 10px 0; }
-        #scroll-content { flex: 1; overflow-y: auto; font-size: 1.2rem; line-height: 1.5; border-top: 1px solid #ccc; padding-top: 10px; }
-        .voice-btn { position: fixed; bottom: 20px; right: 20px; background: var(--copper); color: white; border: none; width: 55px; height: 55px; border-radius: 50%; font-size: 1.3rem; }
+        .photo-box { height: 30vh; border: 2px solid var(--copper); border-radius: 10px; overflow: hidden; position: relative; }
+        #res-img { width: 100%; height: 100%; object-fit: contain; }
+        #scroll-content { flex: 1; overflow-y: auto; margin-top: 10px; font-size: 1.1rem; line-height: 1.5; }
+        
+        /* Дневник */
+        .journal-item { background: #fff; border: 1px solid var(--copper); padding: 10px; border-radius: 8px; margin-bottom: 10px; }
+        .journal-date { font-size: 0.8rem; color: var(--copper); font-weight: bold; }
+        .journal-img { width: 100%; height: 100px; object-fit: cover; border-radius: 4px; margin: 5px 0; }
     </style>
 </head>
 <body>
 
     <div id="sc-1" class="screen active">
         <h1>AURA - 12</h1>
-        <textarea id="context" placeholder="Введите ваш психологический запрос..."></textarea>
+        <textarea id="context" placeholder="Ваш запрос..."></textarea>
         <button class="round-btn" onclick="startCamera()">КАМЕРА</button>
+        <button class="action-btn" style="background:#444;" onclick="openJournal()">ДНЕВНИК (7 ДНЕЙ)</button>
     </div>
 
     <div id="sc-2" class="screen" style="padding:0;">
@@ -39,16 +41,18 @@
 
     <div id="sc-3" class="screen">
         <div class="photo-box"><img id="res-img"></div>
-        <div class="btn-row">
-            <button id="b-gem" class="compare-btn" onclick="analyze('google/gemini-2.0-flash-001', 'b-gem')">Gemini 2.0</button>
-            <button id="b-cla" class="compare-btn" onclick="analyze('anthropic/claude-3.5-sonnet', 'b-cla')">Claude 3.5</button>
-        </div>
         <div id="scroll-content">
-            <div id="status" style="font-size: 0.8rem; color: var(--copper); font-style: italic;">Выберите сенсор</div>
+            <div id="status" style="color:var(--copper); font-style:italic;">Зоркий изучает...</div>
             <div id="out"></div>
         </div>
-        <button class="voice-btn" onclick="speak()">🔊</button>
-        <button onclick="location.reload()" style="background:none; border:none; color:var(--copper); font-size: 0.8rem; margin-top: 5px;">Сброс</button>
+        <button class="action-btn" id="share-btn" style="display:none;" onclick="shareResult()">ПОДЕЛИТЬСЯ</button>
+        <button class="action-btn" style="background:#333;" onclick="location.reload()">НА ГЛАВНУЮ</button>
+    </div>
+
+    <div id="sc-4" class="screen">
+        <h1>ДНЕВНИК</h1>
+        <div id="journal-list" style="flex:1; overflow-y:auto;"></div>
+        <button class="action-btn" onclick="nav('sc-1')">НАЗАД</button>
     </div>
 
     <canvas id="canvas" style="display:none;"></canvas>
@@ -58,62 +62,96 @@
     const v = document.getElementById('video-full');
     const c = document.getElementById('canvas');
     let imgData = "";
-    let lastText = "";
+    let currentLog = {};
 
     function nav(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
 
     async function startCamera() {
         nav('sc-2');
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: 1920, height: 1080 } });
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: 1280 } });
         v.srcObject = stream;
     }
 
     function takePhoto() {
         c.width = v.videoWidth; c.height = v.videoHeight;
         c.getContext('2d').drawImage(v, 0, 0);
-        imgData = c.toDataURL('image/jpeg', 0.9);
+        imgData = c.toDataURL('image/jpeg', 0.6); // Сжатие для экономии места
         document.getElementById('res-img').src = imgData;
         if(stream) stream.getTracks().forEach(t => t.stop());
         nav('sc-3');
+        runAnalysis();
     }
 
-    async function analyze(model, btnId) {
+    async function runAnalysis() {
         const out = document.getElementById('out');
         const st = document.getElementById('status');
-        document.querySelectorAll('.compare-btn').forEach(b => b.classList.remove('active-model'));
-        document.getElementById(btnId).classList.add('active-model');
-
-        st.innerText = "Сенсор " + model.split('/')[1] + " сканирует геометрию...";
-        out.innerText = "Идет глубокий анализ...";
-
+        const ctx = document.getElementById('context').value;
         try {
             const res = await fetch('/api/analyze', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    model: model,
+                    model: "google/gemini-2.0-flash-001",
                     messages: [{ role: "user", content: [
-                        { type: "text", text: `ИНСТРУКЦИЯ СИСТЕМЫ ЗОРКИЙ:
-                        1. Просканируй фото на наличие прямоугольных объектов (карт Таро).
-                        2. Определи их взаимное расположение (ряд, крест, треугольник) и назови тип расклада.
-                        3. Для каждой карты по порядку (слева направо или сверху вниз): назови аркан Таро Райдера-Уэйта, позицию и состояние (прямая/перевернутая).
-                        4. Дай экспертную трактовку для контекста: ${document.getElementById('context').value}.
-                        Будь предельно точен в опознании символов.` },
+                        { type: "text", text: `Зоркий, назови карты Таро и тип расклада. Трактуй для запроса: ${ctx}` },
                         { type: "image_url", image_url: { url: imgData } }
                     ]}]
                 })
             });
             const data = await res.json();
-            lastText = data.choices[0].message.content;
-            st.innerText = "Отчет готов:";
-            out.innerHTML = lastText.replace(/\n/g, '<br>');
-        } catch (e) { out.innerText = "Ошибка: " + e.message; }
+            const text = data.choices[0].message.content;
+            st.innerText = "Анализ завершен";
+            out.innerHTML = text.replace(/\n/g, '<br>');
+            document.getElementById('share-btn').style.display = 'block';
+            
+            saveToJournal(ctx, text, imgData);
+        } catch (e) { st.innerText = "Ошибка: " + e.message; }
     }
 
-    function speak() {
-        const ut = new SpeechSynthesisUtterance(lastText);
-        ut.lang = 'ru-RU';
-        window.speechSynthesis.speak(ut);
+    function saveToJournal(q, a, img) {
+        let logs = JSON.parse(localStorage.getItem('aura_logs') || '[]');
+        const entry = { date: Date.now(), query: q, answer: a, image: img };
+        logs.unshift(entry);
+        localStorage.setItem('aura_logs', JSON.stringify(logs));
+        cleanOldLogs();
+    }
+
+    function cleanOldLogs() {
+        let logs = JSON.parse(localStorage.getItem('aura_logs') || '[]');
+        const weekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+        logs = logs.filter(item => item.date > weekAgo);
+        localStorage.setItem('aura_logs', JSON.stringify(logs));
+    }
+
+    function openJournal() {
+        cleanOldLogs();
+        const list = document.getElementById('journal-list');
+        const logs = JSON.parse(localStorage.getItem('aura_logs') || '[]');
+        list.innerHTML = logs.length ? '' : '<p style="text-align:center;">Пусто</p>';
+        logs.forEach(log => {
+            const d = new Date(log.date).toLocaleString('ru-RU');
+            list.innerHTML += `
+                <div class="journal-item">
+                    <div class="journal-date">${d}</div>
+                    <img src="${log.image}" class="journal-img">
+                    <div style="font-weight:bold; margin:5px 0;">${log.query}</div>
+                    <div style="font-size:0.9rem; max-height:100px; overflow:hidden;">${log.answer}</div>
+                    <button class="action-btn" style="padding:5px; font-size:0.7rem;" onclick="shareText('${log.answer.replace(/'/g, "")}')">КОПИРОВАТЬ ТЕКСТ</button>
+                </div>`;
+        });
+        nav('sc-4');
+    }
+
+    function shareText(txt) {
+        navigator.clipboard.writeText(txt);
+        alert("Текст скопирован");
+    }
+
+    async function shareResult() {
+        const outText = document.getElementById('out').innerText;
+        if (navigator.share) {
+            navigator.share({ title: 'AURA-12 Расклад', text: outText });
+        } else { shareText(outText); }
     }
 </script>
 </body>
