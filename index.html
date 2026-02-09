@@ -3,135 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes">
-    <title>AURA - 12 (Test Stand)</title>
+    <title>AURA - 12 | Сравнение</title>
     <style>
         :root {
-            --perla: #fdfdfa;
-            --copper: #9b5a2b; /* Более контрастная медь */
-            --bg: #f5f5f0;
+            --perla: #fcfcf5;
+            --copper: #b87333;
+            --text: #2c1a1a;
         }
 
-        body {
-            margin: 0;
-            background: var(--bg);
-            color: #2c1a1a;
-            font-family: "Palatino", "Georgia", serif;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
+        body, html {
+            margin: 0; padding: 0; height: 100%; width: 100%;
+            background: var(--perla); color: var(--text);
+            font-family: "Georgia", serif; overflow: hidden;
         }
 
-        .screen { display: none; flex-direction: column; height: 100%; padding: 15px; overflow-y: auto; }
+        .screen { display: none; flex-direction: column; height: 100vh; width: 100vw; padding: 20px; }
         .active { display: flex; }
 
-        h1 {
-            color: var(--copper);
-            text-align: center;
-            font-size: 2.2rem;
-            letter-spacing: 4px;
-            margin: 15px 0;
-            border-bottom: 2px solid var(--copper);
+        h1 { color: var(--copper); text-align: center; font-size: 2.2rem; letter-spacing: 5px; margin: 10% 0 20px 0; }
+
+        /* Кнопки */
+        .round-btn {
+            width: 130px; height: 130px; border-radius: 50%;
+            background: var(--copper); color: white; border: none;
+            font-weight: bold; font-size: 1.1rem; cursor: pointer;
+            margin: 20px auto; box-shadow: 0 4px 15px rgba(184,115,51,0.4);
         }
 
-        /* Кнопки управления */
-        .big-btn {
-            background: var(--copper);
-            color: #fff;
-            border: none;
-            padding: 20px;
-            border-radius: 12px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin: 10px 0;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        .compare-btn {
+            padding: 15px; border: 2px solid var(--copper); border-radius: 10px;
+            background: white; color: var(--copper); font-weight: bold;
+            font-size: 0.9rem; flex: 1; cursor: pointer;
         }
+        .compare-btn.active-model { background: var(--copper); color: white; }
 
-        /* Видео и фото */
-        #webcam, #final-photo {
-            width: 100%;
-            height: 40vh;
-            background: #000;
-            border-radius: 8px;
-            object-fit: cover;
-            border: 4px solid var(--copper);
-        }
-
-        #final-photo { cursor: zoom-in; }
-
-        /* Текст и вывод */
+        /* Инпуты */
         textarea {
-            width: 100%;
-            height: 80px;
-            background: var(--perla);
-            border: 2px solid var(--copper);
-            padding: 10px;
-            font-size: 1.1rem;
-            border-radius: 8px;
+            width: 100%; height: 100px; background: rgba(255,255,255,0.8);
+            border: 1px solid var(--copper); border-radius: 12px; padding: 15px;
+            font-size: 1.1rem; color: var(--text); outline: none; margin-bottom: 20px;
         }
 
-        .result-box {
-            background: var(--perla);
-            border: 1px solid var(--copper);
-            padding: 15px;
-            margin-top: 15px;
-            border-radius: 8px;
-            font-size: 1.3rem; /* Крупный текст */
-            line-height: 1.5;
-            color: #2c1a1a;
-            min-height: 100px;
+        /* Камера */
+        #video-full {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; z-index: 1;
+        }
+        .cam-controls {
+            position: absolute; bottom: 40px; left: 0; width: 100%;
+            z-index: 2; display: flex; justify-content: center;
         }
 
-        .model-label {
-            font-size: 0.8rem;
-            font-weight: bold;
-            color: var(--copper);
-            margin-bottom: 5px;
-            text-transform: uppercase;
+        /* Итоги */
+        .photo-container { height: 33vh; width: 100%; position: relative; overflow: hidden; border: 2px solid var(--copper); border-radius: 10px; }
+        #result-photo { width: 100%; height: 100%; object-fit: cover; cursor: zoom-in; transition: transform 0.3s; }
+        #result-photo:active { transform: scale(2.0); z-index: 100; position: absolute; top:0; left:0; }
+
+        .btn-row { display: flex; gap: 10px; margin: 15px 0; }
+
+        #scroll-content {
+            flex: 1; overflow-y: auto; padding-right: 5px;
+            font-size: 1.25rem; line-height: 1.6; border-top: 1px solid #ddd; padding-top: 10px;
         }
 
-        .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .voice-btn {
+            position: fixed; bottom: 20px; right: 20px;
+            background: var(--copper); color: white; border: none;
+            width: 60px; height: 60px; border-radius: 50%; font-size: 1.5rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
     </style>
 </head>
 <body>
 
-<div id="screen-main" class="screen active">
-    <h1>AURA - 12</h1>
-    <textarea id="context" placeholder="О чем ваш запрос? (Контекст)"></textarea>
-    <button class="big-btn" onclick="startCamera()">ВКЛЮЧИТЬ КАМЕРУ</button>
-</div>
-
-<div id="screen-camera" class="screen">
-    <video id="webcam" autoplay playsinline></video>
-    <button class="big-btn" onclick="takePhoto()">СДЕЛАТЬ ФОТО РАСКЛАДА</button>
-    <button onclick="nav('screen-main')" style="background:none; border:none; color:var(--copper); font-weight:bold;">ОТМЕНА</button>
-</div>
-
-<div id="screen-result" class="screen">
-    <img id="final-photo" onclick="this.requestFullscreen()" alt="Расклад">
-    
-    <div class="btn-row">
-        <button class="big-btn" style="background:#4a69bd;" onclick="analyze('qwen/qwen-2.5-vl-72b-instruct:free')">QWEN Глаза</button>
-        <button class="big-btn" style="background:#60a3bc;" onclick="analyze('openai/gpt-4o-mini')">GPT-4o Глаза</button>
+    <div id="sc-1" class="screen active">
+        <h1>AURA - 12</h1>
+        <textarea id="context" placeholder="Опишите ситуацию..."></textarea>
+        <button class="round-btn" onclick="startCamera()">КАМЕРА</button>
     </div>
 
-    <div id="output" class="result-box">
-        Ожидание анализа...
+    <div id="sc-2" class="screen" style="padding:0;">
+        <video id="video-full" autoplay playsinline></video>
+        <div class="cam-controls">
+            <button class="round-btn" style="background:rgba(184,115,51,0.8); border: 4px solid white;" onclick="takePhoto()">СНЯТЬ</button>
+        </div>
     </div>
 
-    <button class="big-btn" style="background:#333;" onclick="speak()">ОЗВУЧИТЬ</button>
-    <button onclick="location.reload()" style="background:none; border:none; color:var(--copper); font-weight:bold; margin-top:20px;">НОВЫЙ КРУГ</button>
-</div>
+    <div id="sc-3" class="screen">
+        <div class="photo-container">
+            <img id="result-photo" alt="Ваш расклад">
+        </div>
 
-<canvas id="hidden-canvas" style="display:none;"></canvas>
+        <div class="btn-row">
+            <button id="btn-qwen" class="compare-btn" onclick="analyze('qwen/qwen-2.5-vl-72b-instruct:free', 'btn-qwen')">АНАЛИЗ QWEN</button>
+            <button id="btn-gpt" class="compare-btn" onclick="analyze('openai/gpt-4o-mini', 'btn-gpt')">АНАЛИЗ GPT</button>
+        </div>
+
+        <div id="scroll-content">
+            <div id="status" style="font-size: 0.9rem; color: var(--copper); margin-bottom: 5px;">Выберите модель для анализа</div>
+            <div id="text-output"></div>
+        </div>
+
+        <button class="voice-btn" onclick="speak()">🔊</button>
+        <button onclick="location.reload()" style="background:none; border:none; color:var(--copper); text-decoration: underline; margin-top:15px;">Новый запрос</button>
+    </div>
+
+    <canvas id="canvas" style="display:none;"></canvas>
 
 <script>
     let stream;
-    const video = document.getElementById('webcam');
-    const canvas = document.getElementById('hidden-canvas');
-    let currentPhoto = "";
-    let lastText = "";
+    const video = document.getElementById('video-full');
+    const canvas = document.getElementById('canvas');
+    let capturedImg = "";
+    let currentResponse = "";
 
     function nav(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -139,10 +123,8 @@
     }
 
     async function startCamera() {
-        nav('screen-camera');
-        stream = await navigator.mediaDevices.getUserMedia({ 
-            video: { facingMode: 'environment', width: 1280, height: 720 } 
-        });
+        nav('sc-2');
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
         video.srcObject = stream;
     }
 
@@ -150,17 +132,23 @@
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         canvas.getContext('2d').drawImage(video, 0, 0);
-        currentPhoto = canvas.toDataURL('image/jpeg', 0.8);
-        document.getElementById('final-photo').src = currentPhoto;
-        
+        capturedImg = canvas.toDataURL('image/jpeg', 0.8);
+        document.getElementById('result-photo').src = capturedImg;
         if(stream) stream.getTracks().forEach(t => t.stop());
-        nav('screen-result');
+        nav('sc-3');
     }
 
-    async function analyze(modelId) {
-        const out = document.getElementById('output');
-        const context = document.getElementById('context').value;
-        out.innerHTML = `<div class="model-label">${modelId}</div> Анализирую геометрию и карты...`;
+    async function analyze(modelId, btnId) {
+        const out = document.getElementById('text-output');
+        const status = document.getElementById('status');
+        const ctx = document.getElementById('context').value;
+
+        // Визуальный отклик кнопок
+        document.querySelectorAll('.compare-btn').forEach(b => b.classList.remove('active-model'));
+        document.getElementById(btnId).classList.add('active-model');
+
+        status.innerText = "Зоркий (движок " + modelId.split('/')[1] + ") изучает фото...";
+        out.innerHTML = "Анализирую...";
 
         try {
             const res = await fetch('/api/analyze', {
@@ -169,25 +157,24 @@
                 body: JSON.stringify({
                     model: modelId,
                     messages: [{ role: "user", content: [
-                        { type: "text", text: `Ты модуль зрения Зоркий. Инженерный отчет по фото: 1. Какие карты Таро Уэйта видишь (название, положение, перевернутость)? 2. Как называется этот расклад геометрически? 3. Трактуй коротко исходя из контекста: ${context}` },
-                        { type: "image_url", image_url: { url: currentPhoto } }
+                        { type: "text", text: `Ты модуль зрения 'Зоркий'. Технический отчет: 1. Какие карты Таро Уэйта на фото (позиция, название, состояние)? 2. Название расклада? 3. Трактовка для ситуации: ${ctx}` },
+                        { type: "image_url", image_url: { url: capturedImg } }
                     ]}]
                 })
             });
             const data = await res.json();
-            lastText = data.choices[0].message.content;
-            out.innerHTML = `<div class="model-label">${modelId}</div> ${lastText.replace(/\n/g, '<br>')}`;
-            speak(); // Авто-озвучка при получении результата
+            currentResponse = data.choices[0].message.content;
+            status.innerText = "Результат от " + modelId.split('/')[1] + ":";
+            out.innerHTML = currentResponse.replace(/\n/g, '<br>');
         } catch (e) {
             out.innerText = "Ошибка: " + e.message;
         }
     }
 
     function speak() {
-        if (!lastText) return;
-        const ut = new SpeechSynthesisUtterance(lastText);
+        if(!currentResponse) return;
+        const ut = new SpeechSynthesisUtterance(currentResponse);
         ut.lang = 'ru-RU';
-        ut.rate = 0.9;
         window.speechSynthesis.speak(ut);
     }
 </script>
