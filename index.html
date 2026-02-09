@@ -3,902 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes">
-    <title>AURA - 12 | Глаза</title>
+    <title>AURA-12 | HD Sensor</title>
     <style>
-        :root {
-            --perla: #fcfcf5;
-            --copper: #b87333;
-            --text: #2c1a1a;
-        }
-
-        body, html {
-            margin: 0; padding: 0; height: 100%; width: 100%;
-            background: var(--perla); color: var(--text);
-            font-family: "Georgia", serif; overflow: hidden;
-        }
-
+        :root { --perla: #fcfcf5; --copper: #b87333; --text: #2c1a1a; }
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: var(--perla); color: var(--text); font-family: "Georgia", serif; overflow: hidden; }
         .screen { display: none; flex-direction: column; height: 100vh; width: 100vw; padding: 20px; }
         .active { display: flex; }
-
-        h1 { color: var(--copper); text-align: center; font-size: 2.2rem; letter-spacing: 5px; margin: 8% 0 15px 0; }
-
-        /* Кнопки */
-        .round-btn {
-            width: 130px; height: 130px; border-radius: 50%;
-            background: var(--copper); color: white; border: none;
-            font-weight: bold; font-size: 1.1rem; cursor: pointer;
-            margin: 15px auto; box-shadow: 0 4px 15px rgba(184,115,51,0.4);
-        }
-
-        .compare-btn {
-            padding: 12px; border: 2px solid var(--copper); border-radius: 8px;
-            background: white; color: var(--copper); font-weight: bold;
-            font-size: 0.85rem; flex: 1; cursor: pointer; text-transform: uppercase;
-        }
+        h1 { color: var(--copper); text-align: center; font-size: 2.2rem; letter-spacing: 5px; margin: 5% 0 10px 0; }
+        .round-btn { width: 110px; height: 110px; border-radius: 50%; background: var(--copper); color: white; border: none; font-weight: bold; font-size: 1rem; cursor: pointer; margin: 10px auto; box-shadow: 0 4px 15px rgba(184,115,51,0.4); }
+        .compare-btn { padding: 12px; border: 2px solid var(--copper); border-radius: 8px; background: white; color: var(--copper); font-weight: bold; font-size: 0.8rem; flex: 1; cursor: pointer; text-transform: uppercase; }
         .compare-btn.active-model { background: var(--copper); color: white; }
-
-        /* Поле ввода */
-        textarea {
-            width: 100%; height: 90px; background: rgba(255,255,255,0.8);
-            border: 1px solid var(--copper); border-radius: 12px; padding: 15px;
-            font-size: 1.1rem; color: var(--text); outline: none; margin-bottom: 15px;
-        }
-
-        /* Камера */
-        #video-full {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: cover; z-index: 1;
-        }
-        .cam-controls {
-            position: absolute; bottom: 40px; left: 0; width: 100%;
-            z-index: 2; display: flex; justify-content: center;
-        }
-
-        /* Результаты */
-        .photo-box { height: 33vh; width: 100%; overflow: hidden; border: 2px solid var(--copper); border-radius: 10px; position: relative; }
-        #result-photo { width: 100%; height: 100%; object-fit: cover; cursor: zoom-in; transition: 0.3s; }
-        #result-photo:active { transform: scale(2.0); z-index: 100; position: absolute; }
-
-        .btn-row { display: flex; gap: 10px; margin: 15px 0; }
-
-        #scroll-content {
-            flex: 1; overflow-y: auto; padding-right: 5px;
-            font-size: 1.25rem; line-height: 1.5; border-top: 1px solid #ddd; padding-top: 10px;
-        }
-
-        .voice-btn {
-            position: fixed; bottom: 20px; right: 20px;
-            background: var(--copper); color: white; border: none;
-            width: 55px; height: 55px; border-radius: 50%; font-size: 1.3rem;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
+        textarea { width: 100%; height: 80px; background: rgba(255,255,255,0.8); border: 1px solid var(--copper); border-radius: 12px; padding: 12px; font-size: 1rem; outline: none; margin-bottom: 10px; }
+        #video-full { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+        .cam-ui { position: absolute; bottom: 30px; left: 0; width: 100%; z-index: 2; display: flex; justify-content: center; }
+        .photo-box { height: 30vh; width: 100%; overflow: hidden; border: 2px solid var(--copper); border-radius: 10px; position: relative; background: #000; }
+        #res-img { width: 100%; height: 100%; object-fit: contain; cursor: zoom-in; transition: 0.3s; }
+        #res-img:active { transform: scale(2.5); z-index: 100; position: absolute; }
+        .btn-row { display: flex; gap: 8px; margin: 10px 0; }
+        #scroll-content { flex: 1; overflow-y: auto; font-size: 1.2rem; line-height: 1.5; border-top: 1px solid #ccc; padding-top: 10px; }
+        .voice-btn { position: fixed; bottom: 20px; right: 20px; background: var(--copper); color: white; border: none; width: 55px; height: 55px; border-radius: 50%; font-size: 1.3rem; }
     </style>
 </head>
 <body>
 
     <div id="sc-1" class="screen active">
         <h1>AURA - 12</h1>
-        <textarea id="context" placeholder="Запрос для Зоркого..."></textarea>
+        <textarea id="context" placeholder="Введите ваш психологический запрос..."></textarea>
         <button class="round-btn" onclick="startCamera()">КАМЕРА</button>
     </div>
 
     <div id="sc-2" class="screen" style="padding:0;">
         <video id="video-full" autoplay playsinline></video>
-        <div class="cam-controls">
-            <button class="round-btn" style="background:rgba(184,115,51,0.9); border: 4px solid white;" onclick="takePhoto()">СНЯТЬ</button>
-        </div>
+        <div class="cam-ui"><button class="round-btn" style="border:4px solid #fff;" onclick="takePhoto()">СНЯТЬ</button></div>
     </div>
 
     <div id="sc-3" class="screen">
-        <div class="photo-box">
-            <img id="result-photo" alt="Расклад">
-        </div>
-
+        <div class="photo-box"><img id="res-img"></div>
         <div class="btn-row">
-            <button id="btn-gemini" class="compare-btn" onclick="analyze('google/gemini-2.0-flash-mini-001', 'btn-gemini')">Gemini 2.0</button>
-            <button id="btn-gpt" class="compare-btn" onclick="analyze('openai/gpt-4o-mini', 'btn-gpt')">GPT-4o Mini</button>
+            <button id="b-gem" class="compare-btn" onclick="analyze('google/gemini-2.0-flash-001', 'b-gem')">Gemini 2.0</button>
+            <button id="b-cla" class="compare-btn" onclick="analyze('anthropic/claude-3.5-sonnet', 'b-cla')">Claude 3.5</button>
         </div>
-
         <div id="scroll-content">
-            <div id="status" style="font-size: 0.85rem; color: var(--copper); margin-bottom: 5px; font-style: italic;">Выберите сенсор для проверки</div>
-            <div id="text-output"></div>
+            <div id="status" style="font-size: 0.8rem; color: var(--copper); font-style: italic;">Выберите сенсор</div>
+            <div id="out"></div>
         </div>
-
         <button class="voice-btn" onclick="speak()">🔊</button>
-        <button onclick="location.reload()" style="background:none; border:none; color:var(--copper); margin-top:15px; font-size: 0.9rem;">Новый круг</button>
+        <button onclick="location.reload()" style="background:none; border:none; color:var(--copper); font-size: 0.8rem; margin-top: 5px;">Сброс</button>
     </div>
 
     <canvas id="canvas" style="display:none;"></canvas>
 
 <script>
     let stream;
-    const video = document.getElementById('video-full');
-    const canvas = document.getElementById('canvas');
-    let capturedImg = "";
-    let currentText = "";
+    const v = document.getElementById('video-full');
+    const c = document.getElementById('canvas');
+    let imgData = "";
+    let lastText = "";
 
-    function nav(id) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-    }
+    function nav(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
 
     async function startCamera() {
         nav('sc-2');
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-        video.srcObject = stream;
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: 1920, height: 1080 } });
+        v.srcObject = stream;
     }
 
     function takePhoto() {
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        canvas.getContext('2d').drawImage(video, 0, 0);
-        capturedImg = canvas.toDataURL('image/jpeg', 0.8);
-        document.getElementById('result-photo').src = capturedImg;
+        c.width = v.videoWidth; c.height = v.videoHeight;
+        c.getContext('2d').drawImage(v, 0, 0);
+        imgData = c.toDataURL('image/jpeg', 0.9);
+        document.getElementById('res-img').src = imgData;
         if(stream) stream.getTracks().forEach(t => t.stop());
         nav('sc-3');
     }
 
-    async function analyze(modelId, btnId) {
-        const out = document.getElementById('text-output');
-        const status = document.getElementById('status');
-        const ctx = document.getElementById('context').value;
-
+    async function analyze(model, btnId) {
+        const out = document.getElementById('out');
+        const st = document.getElementById('status');
         document.querySelectorAll('.compare-btn').forEach(b => b.classList.remove('active-model'));
         document.getElementById(btnId).classList.add('active-model');
 
-        status.innerText = "Сенсор " + modelId.split('/')[1] + " сканирует...";
-        out.innerHTML = "Считывание данных...";
+        st.innerText = "Сенсор " + model.split('/')[1] + " сканирует геометрию...";
+        out.innerText = "Идет глубокий анализ...";
 
         try {
             const res = await fetch('/api/analyze', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    model: modelId,
+                    model: model,
                     messages: [{ role: "user", content: [
-                        { type: "text", text: `Технический отчет 'Зоркий'. На фото карты Таро Райдера-Уэйта. 1. Какие карты (название, позиция, перевернутость)? 2. Тип расклада? 3. Трактовка для: ${ctx}` },
-                        { type: "image_url", image_url: { url: capturedImg } }
+                        { type: "text", text: `ИНСТРУКЦИЯ СИСТЕМЫ ЗОРКИЙ:
+                        1. Просканируй фото на наличие прямоугольных объектов (карт Таро).
+                        2. Определи их взаимное расположение (ряд, крест, треугольник) и назови тип расклада.
+                        3. Для каждой карты по порядку (слева направо или сверху вниз): назови аркан Таро Райдера-Уэйта, позицию и состояние (прямая/перевернутая).
+                        4. Дай экспертную трактовку для контекста: ${document.getElementById('context').value}.
+                        Будь предельно точен в опознании символов.` },
+                        { type: "image_url", image_url: { url: imgData } }
                     ]}]
                 })
             });
             const data = await res.json();
-            currentText = data.choices[0].message.content;
-            status.innerText = "Отчет от " + modelId.split('/')[1] + ":";
-            out.innerHTML = currentText.replace(/\n/g, '<br>');
-        } catch (e) {
-            out.innerText = "Сбой сенсора: " + e.message;
-        }
+            lastText = data.choices[0].message.content;
+            st.innerText = "Отчет готов:";
+            out.innerHTML = lastText.replace(/\n/g, '<br>');
+        } catch (e) { out.innerText = "Ошибка: " + e.message; }
     }
 
     function speak() {
-        if(!currentText) return;
-        const ut = new SpeechSynthesisUtterance(currentText);
+        const ut = new SpeechSynthesisUtterance(lastText);
         ut.lang = 'ru-RU';
-        ut.rate = 0.95;
-        window.speechSynthesis.speak(ut);
-    }
-</script>
-</body>
-</html><!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes">
-    <title>AURA - 12 | Глаза</title>
-    <style>
-        :root {
-            --perla: #fcfcf5;
-            --copper: #b87333;
-            --text: #2c1a1a;
-        }
-
-        body, html {
-            margin: 0; padding: 0; height: 100%; width: 100%;
-            background: var(--perla); color: var(--text);
-            font-family: "Georgia", serif; overflow: hidden;
-        }
-
-        .screen { display: none; flex-direction: column; height: 100vh; width: 100vw; padding: 20px; }
-        .active { display: flex; }
-
-        h1 { color: var(--copper); text-align: center; font-size: 2.2rem; letter-spacing: 5px; margin: 8% 0 15px 0; }
-
-        /* Кнопки */
-        .round-btn {
-            width: 130px; height: 130px; border-radius: 50%;
-            background: var(--copper); color: white; border: none;
-            font-weight: bold; font-size: 1.1rem; cursor: pointer;
-            margin: 15px auto; box-shadow: 0 4px 15px rgba(184,115,51,0.4);
-        }
-
-        .compare-btn {
-            padding: 12px; border: 2px solid var(--copper); border-radius: 8px;
-            background: white; color: var(--copper); font-weight: bold;
-            font-size: 0.85rem; flex: 1; cursor: pointer; text-transform: uppercase;
-        }
-        .compare-btn.active-model { background: var(--copper); color: white; }
-
-        /* Поле ввода */
-        textarea {
-            width: 100%; height: 90px; background: rgba(255,255,255,0.8);
-            border: 1px solid var(--copper); border-radius: 12px; padding: 15px;
-            font-size: 1.1rem; color: var(--text); outline: none; margin-bottom: 15px;
-        }
-
-        /* Камера */
-        #video-full {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: cover; z-index: 1;
-        }
-        .cam-controls {
-            position: absolute; bottom: 40px; left: 0; width: 100%;
-            z-index: 2; display: flex; justify-content: center;
-        }
-
-        /* Результаты */
-        .photo-box { height: 33vh; width: 100%; overflow: hidden; border: 2px solid var(--copper); border-radius: 10px; position: relative; }
-        #result-photo { width: 100%; height: 100%; object-fit: cover; cursor: zoom-in; transition: 0.3s; }
-        #result-photo:active { transform: scale(2.0); z-index: 100; position: absolute; }
-
-        .btn-row { display: flex; gap: 10px; margin: 15px 0; }
-
-        #scroll-content {
-            flex: 1; overflow-y: auto; padding-right: 5px;
-            font-size: 1.25rem; line-height: 1.5; border-top: 1px solid #ddd; padding-top: 10px;
-        }
-
-        .voice-btn {
-            position: fixed; bottom: 20px; right: 20px;
-            background: var(--copper); color: white; border: none;
-            width: 55px; height: 55px; border-radius: 50%; font-size: 1.3rem;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-    </style>
-</head>
-<body>
-
-    <div id="sc-1" class="screen active">
-        <h1>AURA - 12</h1>
-        <textarea id="context" placeholder="Запрос для Зоркого..."></textarea>
-        <button class="round-btn" onclick="startCamera()">КАМЕРА</button>
-    </div>
-
-    <div id="sc-2" class="screen" style="padding:0;">
-        <video id="video-full" autoplay playsinline></video>
-        <div class="cam-controls">
-            <button class="round-btn" style="background:rgba(184,115,51,0.9); border: 4px solid white;" onclick="takePhoto()">СНЯТЬ</button>
-        </div>
-    </div>
-
-    <div id="sc-3" class="screen">
-        <div class="photo-box">
-            <img id="result-photo" alt="Расклад">
-        </div>
-
-        <div class="btn-row">
-            <button id="btn-gemini" class="compare-btn" onclick="analyze('google/gemini-2.0-flash-mini-001', 'btn-gemini')">Gemini 2.0</button>
-            <button id="btn-gpt" class="compare-btn" onclick="analyze('openai/gpt-4o-mini', 'btn-gpt')">GPT-4o Mini</button>
-        </div>
-
-        <div id="scroll-content">
-            <div id="status" style="font-size: 0.85rem; color: var(--copper); margin-bottom: 5px; font-style: italic;">Выберите сенсор для проверки</div>
-            <div id="text-output"></div>
-        </div>
-
-        <button class="voice-btn" onclick="speak()">🔊</button>
-        <button onclick="location.reload()" style="background:none; border:none; color:var(--copper); margin-top:15px; font-size: 0.9rem;">Новый круг</button>
-    </div>
-
-    <canvas id="canvas" style="display:none;"></canvas>
-
-<script>
-    let stream;
-    const video = document.getElementById('video-full');
-    const canvas = document.getElementById('canvas');
-    let capturedImg = "";
-    let currentText = "";
-
-    function nav(id) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-    }
-
-    async function startCamera() {
-        nav('sc-2');
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-        video.srcObject = stream;
-    }
-
-    function takePhoto() {
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        canvas.getContext('2d').drawImage(video, 0, 0);
-        capturedImg = canvas.toDataURL('image/jpeg', 0.8);
-        document.getElementById('result-photo').src = capturedImg;
-        if(stream) stream.getTracks().forEach(t => t.stop());
-        nav('sc-3');
-    }
-
-    async function analyze(modelId, btnId) {
-        const out = document.getElementById('text-output');
-        const status = document.getElementById('status');
-        const ctx = document.getElementById('context').value;
-
-        document.querySelectorAll('.compare-btn').forEach(b => b.classList.remove('active-model'));
-        document.getElementById(btnId).classList.add('active-model');
-
-        status.innerText = "Сенсор " + modelId.split('/')[1] + " сканирует...";
-        out.innerHTML = "Считывание данных...";
-
-        try {
-            const res = await fetch('/api/analyze', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    model: modelId,
-                    messages: [{ role: "user", content: [
-                        { type: "text", text: `Технический отчет 'Зоркий'. На фото карты Таро Райдера-Уэйта. 1. Какие карты (название, позиция, перевернутость)? 2. Тип расклада? 3. Трактовка для: ${ctx}` },
-                        { type: "image_url", image_url: { url: capturedImg } }
-                    ]}]
-                })
-            });
-            const data = await res.json();
-            currentText = data.choices[0].message.content;
-            status.innerText = "Отчет от " + modelId.split('/')[1] + ":";
-            out.innerHTML = currentText.replace(/\n/g, '<br>');
-        } catch (e) {
-            out.innerText = "Сбой сенсора: " + e.message;
-        }
-    }
-
-    function speak() {
-        if(!currentText) return;
-        const ut = new SpeechSynthesisUtterance(currentText);
-        ut.lang = 'ru-RU';
-        ut.rate = 0.95;
-        window.speechSynthesis.speak(ut);
-    }
-</script>
-</body>
-</html><!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes">
-    <title>AURA - 12 | Глаза</title>
-    <style>
-        :root {
-            --perla: #fcfcf5;
-            --copper: #b87333;
-            --text: #2c1a1a;
-        }
-
-        body, html {
-            margin: 0; padding: 0; height: 100%; width: 100%;
-            background: var(--perla); color: var(--text);
-            font-family: "Georgia", serif; overflow: hidden;
-        }
-
-        .screen { display: none; flex-direction: column; height: 100vh; width: 100vw; padding: 20px; }
-        .active { display: flex; }
-
-        h1 { color: var(--copper); text-align: center; font-size: 2.2rem; letter-spacing: 5px; margin: 8% 0 15px 0; }
-
-        /* Кнопки */
-        .round-btn {
-            width: 130px; height: 130px; border-radius: 50%;
-            background: var(--copper); color: white; border: none;
-            font-weight: bold; font-size: 1.1rem; cursor: pointer;
-            margin: 15px auto; box-shadow: 0 4px 15px rgba(184,115,51,0.4);
-        }
-
-        .compare-btn {
-            padding: 12px; border: 2px solid var(--copper); border-radius: 8px;
-            background: white; color: var(--copper); font-weight: bold;
-            font-size: 0.85rem; flex: 1; cursor: pointer; text-transform: uppercase;
-        }
-        .compare-btn.active-model { background: var(--copper); color: white; }
-
-        /* Поле ввода */
-        textarea {
-            width: 100%; height: 90px; background: rgba(255,255,255,0.8);
-            border: 1px solid var(--copper); border-radius: 12px; padding: 15px;
-            font-size: 1.1rem; color: var(--text); outline: none; margin-bottom: 15px;
-        }
-
-        /* Камера */
-        #video-full {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: cover; z-index: 1;
-        }
-        .cam-controls {
-            position: absolute; bottom: 40px; left: 0; width: 100%;
-            z-index: 2; display: flex; justify-content: center;
-        }
-
-        /* Результаты */
-        .photo-box { height: 33vh; width: 100%; overflow: hidden; border: 2px solid var(--copper); border-radius: 10px; position: relative; }
-        #result-photo { width: 100%; height: 100%; object-fit: cover; cursor: zoom-in; transition: 0.3s; }
-        #result-photo:active { transform: scale(2.0); z-index: 100; position: absolute; }
-
-        .btn-row { display: flex; gap: 10px; margin: 15px 0; }
-
-        #scroll-content {
-            flex: 1; overflow-y: auto; padding-right: 5px;
-            font-size: 1.25rem; line-height: 1.5; border-top: 1px solid #ddd; padding-top: 10px;
-        }
-
-        .voice-btn {
-            position: fixed; bottom: 20px; right: 20px;
-            background: var(--copper); color: white; border: none;
-            width: 55px; height: 55px; border-radius: 50%; font-size: 1.3rem;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-    </style>
-</head>
-<body>
-
-    <div id="sc-1" class="screen active">
-        <h1>AURA - 12</h1>
-        <textarea id="context" placeholder="Запрос для Зоркого..."></textarea>
-        <button class="round-btn" onclick="startCamera()">КАМЕРА</button>
-    </div>
-
-    <div id="sc-2" class="screen" style="padding:0;">
-        <video id="video-full" autoplay playsinline></video>
-        <div class="cam-controls">
-            <button class="round-btn" style="background:rgba(184,115,51,0.9); border: 4px solid white;" onclick="takePhoto()">СНЯТЬ</button>
-        </div>
-    </div>
-
-    <div id="sc-3" class="screen">
-        <div class="photo-box">
-            <img id="result-photo" alt="Расклад">
-        </div>
-
-        <div class="btn-row">
-            <button id="btn-gemini" class="compare-btn" onclick="analyze('google/gemini-2.0-flash-mini-001', 'btn-gemini')">Gemini 2.0</button>
-            <button id="btn-gpt" class="compare-btn" onclick="analyze('openai/gpt-4o-mini', 'btn-gpt')">GPT-4o Mini</button>
-        </div>
-
-        <div id="scroll-content">
-            <div id="status" style="font-size: 0.85rem; color: var(--copper); margin-bottom: 5px; font-style: italic;">Выберите сенсор для проверки</div>
-            <div id="text-output"></div>
-        </div>
-
-        <button class="voice-btn" onclick="speak()">🔊</button>
-        <button onclick="location.reload()" style="background:none; border:none; color:var(--copper); margin-top:15px; font-size: 0.9rem;">Новый круг</button>
-    </div>
-
-    <canvas id="canvas" style="display:none;"></canvas>
-
-<script>
-    let stream;
-    const video = document.getElementById('video-full');
-    const canvas = document.getElementById('canvas');
-    let capturedImg = "";
-    let currentText = "";
-
-    function nav(id) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-    }
-
-    async function startCamera() {
-        nav('sc-2');
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-        video.srcObject = stream;
-    }
-
-    function takePhoto() {
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        canvas.getContext('2d').drawImage(video, 0, 0);
-        capturedImg = canvas.toDataURL('image/jpeg', 0.8);
-        document.getElementById('result-photo').src = capturedImg;
-        if(stream) stream.getTracks().forEach(t => t.stop());
-        nav('sc-3');
-    }
-
-    async function analyze(modelId, btnId) {
-        const out = document.getElementById('text-output');
-        const status = document.getElementById('status');
-        const ctx = document.getElementById('context').value;
-
-        document.querySelectorAll('.compare-btn').forEach(b => b.classList.remove('active-model'));
-        document.getElementById(btnId).classList.add('active-model');
-
-        status.innerText = "Сенсор " + modelId.split('/')[1] + " сканирует...";
-        out.innerHTML = "Считывание данных...";
-
-        try {
-            const res = await fetch('/api/analyze', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    model: modelId,
-                    messages: [{ role: "user", content: [
-                        { type: "text", text: `Технический отчет 'Зоркий'. На фото карты Таро Райдера-Уэйта. 1. Какие карты (название, позиция, перевернутость)? 2. Тип расклада? 3. Трактовка для: ${ctx}` },
-                        { type: "image_url", image_url: { url: capturedImg } }
-                    ]}]
-                })
-            });
-            const data = await res.json();
-            currentText = data.choices[0].message.content;
-            status.innerText = "Отчет от " + modelId.split('/')[1] + ":";
-            out.innerHTML = currentText.replace(/\n/g, '<br>');
-        } catch (e) {
-            out.innerText = "Сбой сенсора: " + e.message;
-        }
-    }
-
-    function speak() {
-        if(!currentText) return;
-        const ut = new SpeechSynthesisUtterance(currentText);
-        ut.lang = 'ru-RU';
-        ut.rate = 0.95;
-        window.speechSynthesis.speak(ut);
-    }
-</script>
-</body>
-</html><!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes">
-    <title>AURA - 12 | Глаза</title>
-    <style>
-        :root {
-            --perla: #fcfcf5;
-            --copper: #b87333;
-            --text: #2c1a1a;
-        }
-
-        body, html {
-            margin: 0; padding: 0; height: 100%; width: 100%;
-            background: var(--perla); color: var(--text);
-            font-family: "Georgia", serif; overflow: hidden;
-        }
-
-        .screen { display: none; flex-direction: column; height: 100vh; width: 100vw; padding: 20px; }
-        .active { display: flex; }
-
-        h1 { color: var(--copper); text-align: center; font-size: 2.2rem; letter-spacing: 5px; margin: 8% 0 15px 0; }
-
-        /* Кнопки */
-        .round-btn {
-            width: 130px; height: 130px; border-radius: 50%;
-            background: var(--copper); color: white; border: none;
-            font-weight: bold; font-size: 1.1rem; cursor: pointer;
-            margin: 15px auto; box-shadow: 0 4px 15px rgba(184,115,51,0.4);
-        }
-
-        .compare-btn {
-            padding: 12px; border: 2px solid var(--copper); border-radius: 8px;
-            background: white; color: var(--copper); font-weight: bold;
-            font-size: 0.85rem; flex: 1; cursor: pointer; text-transform: uppercase;
-        }
-        .compare-btn.active-model { background: var(--copper); color: white; }
-
-        /* Поле ввода */
-        textarea {
-            width: 100%; height: 90px; background: rgba(255,255,255,0.8);
-            border: 1px solid var(--copper); border-radius: 12px; padding: 15px;
-            font-size: 1.1rem; color: var(--text); outline: none; margin-bottom: 15px;
-        }
-
-        /* Камера */
-        #video-full {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: cover; z-index: 1;
-        }
-        .cam-controls {
-            position: absolute; bottom: 40px; left: 0; width: 100%;
-            z-index: 2; display: flex; justify-content: center;
-        }
-
-        /* Результаты */
-        .photo-box { height: 33vh; width: 100%; overflow: hidden; border: 2px solid var(--copper); border-radius: 10px; position: relative; }
-        #result-photo { width: 100%; height: 100%; object-fit: cover; cursor: zoom-in; transition: 0.3s; }
-        #result-photo:active { transform: scale(2.0); z-index: 100; position: absolute; }
-
-        .btn-row { display: flex; gap: 10px; margin: 15px 0; }
-
-        #scroll-content {
-            flex: 1; overflow-y: auto; padding-right: 5px;
-            font-size: 1.25rem; line-height: 1.5; border-top: 1px solid #ddd; padding-top: 10px;
-        }
-
-        .voice-btn {
-            position: fixed; bottom: 20px; right: 20px;
-            background: var(--copper); color: white; border: none;
-            width: 55px; height: 55px; border-radius: 50%; font-size: 1.3rem;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-    </style>
-</head>
-<body>
-
-    <div id="sc-1" class="screen active">
-        <h1>AURA - 12</h1>
-        <textarea id="context" placeholder="Запрос для Зоркого..."></textarea>
-        <button class="round-btn" onclick="startCamera()">КАМЕРА</button>
-    </div>
-
-    <div id="sc-2" class="screen" style="padding:0;">
-        <video id="video-full" autoplay playsinline></video>
-        <div class="cam-controls">
-            <button class="round-btn" style="background:rgba(184,115,51,0.9); border: 4px solid white;" onclick="takePhoto()">СНЯТЬ</button>
-        </div>
-    </div>
-
-    <div id="sc-3" class="screen">
-        <div class="photo-box">
-            <img id="result-photo" alt="Расклад">
-        </div>
-
-        <div class="btn-row">
-            <button id="btn-gemini" class="compare-btn" onclick="analyze('google/gemini-2.0-flash-mini-001', 'btn-gemini')">Gemini 2.0</button>
-            <button id="btn-gpt" class="compare-btn" onclick="analyze('openai/gpt-4o-mini', 'btn-gpt')">GPT-4o Mini</button>
-        </div>
-
-        <div id="scroll-content">
-            <div id="status" style="font-size: 0.85rem; color: var(--copper); margin-bottom: 5px; font-style: italic;">Выберите сенсор для проверки</div>
-            <div id="text-output"></div>
-        </div>
-
-        <button class="voice-btn" onclick="speak()">🔊</button>
-        <button onclick="location.reload()" style="background:none; border:none; color:var(--copper); margin-top:15px; font-size: 0.9rem;">Новый круг</button>
-    </div>
-
-    <canvas id="canvas" style="display:none;"></canvas>
-
-<script>
-    let stream;
-    const video = document.getElementById('video-full');
-    const canvas = document.getElementById('canvas');
-    let capturedImg = "";
-    let currentText = "";
-
-    function nav(id) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-    }
-
-    async function startCamera() {
-        nav('sc-2');
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-        video.srcObject = stream;
-    }
-
-    function takePhoto() {
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        canvas.getContext('2d').drawImage(video, 0, 0);
-        capturedImg = canvas.toDataURL('image/jpeg', 0.8);
-        document.getElementById('result-photo').src = capturedImg;
-        if(stream) stream.getTracks().forEach(t => t.stop());
-        nav('sc-3');
-    }
-
-    async function analyze(modelId, btnId) {
-        const out = document.getElementById('text-output');
-        const status = document.getElementById('status');
-        const ctx = document.getElementById('context').value;
-
-        document.querySelectorAll('.compare-btn').forEach(b => b.classList.remove('active-model'));
-        document.getElementById(btnId).classList.add('active-model');
-
-        status.innerText = "Сенсор " + modelId.split('/')[1] + " сканирует...";
-        out.innerHTML = "Считывание данных...";
-
-        try {
-            const res = await fetch('/api/analyze', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    model: modelId,
-                    messages: [{ role: "user", content: [
-                        { type: "text", text: `Технический отчет 'Зоркий'. На фото карты Таро Райдера-Уэйта. 1. Какие карты (название, позиция, перевернутость)? 2. Тип расклада? 3. Трактовка для: ${ctx}` },
-                        { type: "image_url", image_url: { url: capturedImg } }
-                    ]}]
-                })
-            });
-            const data = await res.json();
-            currentText = data.choices[0].message.content;
-            status.innerText = "Отчет от " + modelId.split('/')[1] + ":";
-            out.innerHTML = currentText.replace(/\n/g, '<br>');
-        } catch (e) {
-            out.innerText = "Сбой сенсора: " + e.message;
-        }
-    }
-
-    function speak() {
-        if(!currentText) return;
-        const ut = new SpeechSynthesisUtterance(currentText);
-        ut.lang = 'ru-RU';
-        ut.rate = 0.95;
-        window.speechSynthesis.speak(ut);
-    }
-</script>
-</body>
-</html><!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes">
-    <title>AURA - 12 | Глаза</title>
-    <style>
-        :root {
-            --perla: #fcfcf5;
-            --copper: #b87333;
-            --text: #2c1a1a;
-        }
-
-        body, html {
-            margin: 0; padding: 0; height: 100%; width: 100%;
-            background: var(--perla); color: var(--text);
-            font-family: "Georgia", serif; overflow: hidden;
-        }
-
-        .screen { display: none; flex-direction: column; height: 100vh; width: 100vw; padding: 20px; }
-        .active { display: flex; }
-
-        h1 { color: var(--copper); text-align: center; font-size: 2.2rem; letter-spacing: 5px; margin: 8% 0 15px 0; }
-
-        /* Кнопки */
-        .round-btn {
-            width: 130px; height: 130px; border-radius: 50%;
-            background: var(--copper); color: white; border: none;
-            font-weight: bold; font-size: 1.1rem; cursor: pointer;
-            margin: 15px auto; box-shadow: 0 4px 15px rgba(184,115,51,0.4);
-        }
-
-        .compare-btn {
-            padding: 12px; border: 2px solid var(--copper); border-radius: 8px;
-            background: white; color: var(--copper); font-weight: bold;
-            font-size: 0.85rem; flex: 1; cursor: pointer; text-transform: uppercase;
-        }
-        .compare-btn.active-model { background: var(--copper); color: white; }
-
-        /* Поле ввода */
-        textarea {
-            width: 100%; height: 90px; background: rgba(255,255,255,0.8);
-            border: 1px solid var(--copper); border-radius: 12px; padding: 15px;
-            font-size: 1.1rem; color: var(--text); outline: none; margin-bottom: 15px;
-        }
-
-        /* Камера */
-        #video-full {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: cover; z-index: 1;
-        }
-        .cam-controls {
-            position: absolute; bottom: 40px; left: 0; width: 100%;
-            z-index: 2; display: flex; justify-content: center;
-        }
-
-        /* Результаты */
-        .photo-box { height: 33vh; width: 100%; overflow: hidden; border: 2px solid var(--copper); border-radius: 10px; position: relative; }
-        #result-photo { width: 100%; height: 100%; object-fit: cover; cursor: zoom-in; transition: 0.3s; }
-        #result-photo:active { transform: scale(2.0); z-index: 100; position: absolute; }
-
-        .btn-row { display: flex; gap: 10px; margin: 15px 0; }
-
-        #scroll-content {
-            flex: 1; overflow-y: auto; padding-right: 5px;
-            font-size: 1.25rem; line-height: 1.5; border-top: 1px solid #ddd; padding-top: 10px;
-        }
-
-        .voice-btn {
-            position: fixed; bottom: 20px; right: 20px;
-            background: var(--copper); color: white; border: none;
-            width: 55px; height: 55px; border-radius: 50%; font-size: 1.3rem;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-    </style>
-</head>
-<body>
-
-    <div id="sc-1" class="screen active">
-        <h1>AURA - 12</h1>
-        <textarea id="context" placeholder="Запрос для Зоркого..."></textarea>
-        <button class="round-btn" onclick="startCamera()">КАМЕРА</button>
-    </div>
-
-    <div id="sc-2" class="screen" style="padding:0;">
-        <video id="video-full" autoplay playsinline></video>
-        <div class="cam-controls">
-            <button class="round-btn" style="background:rgba(184,115,51,0.9); border: 4px solid white;" onclick="takePhoto()">СНЯТЬ</button>
-        </div>
-    </div>
-
-    <div id="sc-3" class="screen">
-        <div class="photo-box">
-            <img id="result-photo" alt="Расклад">
-        </div>
-
-        <div class="btn-row">
-            <button id="btn-gemini" class="compare-btn" onclick="analyze('google/gemini-2.0-flash-mini-001', 'btn-gemini')">Gemini 2.0</button>
-            <button id="btn-gpt" class="compare-btn" onclick="analyze('openai/gpt-4o-mini', 'btn-gpt')">GPT-4o Mini</button>
-        </div>
-
-        <div id="scroll-content">
-            <div id="status" style="font-size: 0.85rem; color: var(--copper); margin-bottom: 5px; font-style: italic;">Выберите сенсор для проверки</div>
-            <div id="text-output"></div>
-        </div>
-
-        <button class="voice-btn" onclick="speak()">🔊</button>
-        <button onclick="location.reload()" style="background:none; border:none; color:var(--copper); margin-top:15px; font-size: 0.9rem;">Новый круг</button>
-    </div>
-
-    <canvas id="canvas" style="display:none;"></canvas>
-
-<script>
-    let stream;
-    const video = document.getElementById('video-full');
-    const canvas = document.getElementById('canvas');
-    let capturedImg = "";
-    let currentText = "";
-
-    function nav(id) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-    }
-
-    async function startCamera() {
-        nav('sc-2');
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-        video.srcObject = stream;
-    }
-
-    function takePhoto() {
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        canvas.getContext('2d').drawImage(video, 0, 0);
-        capturedImg = canvas.toDataURL('image/jpeg', 0.8);
-        document.getElementById('result-photo').src = capturedImg;
-        if(stream) stream.getTracks().forEach(t => t.stop());
-        nav('sc-3');
-    }
-
-    async function analyze(modelId, btnId) {
-        const out = document.getElementById('text-output');
-        const status = document.getElementById('status');
-        const ctx = document.getElementById('context').value;
-
-        document.querySelectorAll('.compare-btn').forEach(b => b.classList.remove('active-model'));
-        document.getElementById(btnId).classList.add('active-model');
-
-        status.innerText = "Сенсор " + modelId.split('/')[1] + " сканирует...";
-        out.innerHTML = "Считывание данных...";
-
-        try {
-            const res = await fetch('/api/analyze', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    model: modelId,
-                    messages: [{ role: "user", content: [
-                        { type: "text", text: `Технический отчет 'Зоркий'. На фото карты Таро Райдера-Уэйта. 1. Какие карты (название, позиция, перевернутость)? 2. Тип расклада? 3. Трактовка для: ${ctx}` },
-                        { type: "image_url", image_url: { url: capturedImg } }
-                    ]}]
-                })
-            });
-            const data = await res.json();
-            currentText = data.choices[0].message.content;
-            status.innerText = "Отчет от " + modelId.split('/')[1] + ":";
-            out.innerHTML = currentText.replace(/\n/g, '<br>');
-        } catch (e) {
-            out.innerText = "Сбой сенсора: " + e.message;
-        }
-    }
-
-    function speak() {
-        if(!currentText) return;
-        const ut = new SpeechSynthesisUtterance(currentText);
-        ut.lang = 'ru-RU';
-        ut.rate = 0.95;
         window.speechSynthesis.speak(ut);
     }
 </script>
